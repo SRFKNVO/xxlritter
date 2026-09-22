@@ -8,13 +8,13 @@ const contactInfo = [
   {
     icon: MapPin,
     title: 'Adresse',
-    lines: ['Herzogenweiler 2', '78048 Villingen-Schwenningen', 'Deutschland'],
+    lines: ['Glaserstraße 2', '78052 Villingen-Schwenningen', 'Deutschland'],
   },
   {
     icon: Phone,
     title: 'Telefon',
-    lines: ['+49 7720 123456'],
-    href: 'tel:+497720123456',
+    lines: ['07721 23686'],
+    href: 'tel:+49772123686',
   },
   {
     icon: Mail,
@@ -25,13 +25,13 @@ const contactInfo = [
   {
     icon: Clock,
     title: 'Öffnungszeiten',
-    lines: ['Mo – Fr: 11:30 – 22:00 Uhr', 'Sa – So: 11:00 – 23:00 Uhr', 'Feiertage: 11:00 – 22:00 Uhr'],
+    lines: ['Montag: Ruhetag', 'Di – Sa: 17:00 – 22:00 Uhr', 'So: 11:00–14:00, 17:00–21:00 Uhr'],
   },
 ];
 
-const MAPS_EMBED = 'https://maps.google.com/maps?q=Herzogenweiler+2+78048+Villingen-Schwenningen&output=embed&z=14';
-const MAPS_NAVIGATE = 'https://maps.google.com/maps/dir//Herzogenweiler+2,+78048+Villingen-Schwenningen,+Deutschland';
-const WHATSAPP = `https://wa.me/4977205000?text=${encodeURIComponent('Hallo Ritter XXL! Ich möchte gerne einen Tisch reservieren.')}`;
+const MAPS_EMBED = 'https://maps.google.com/maps?q=Glaserstra%C3%9Fe+2+78052+Villingen-Schwenningen&output=embed&z=14';
+const MAPS_NAVIGATE = 'https://maps.google.com/maps/dir//Glaserstra%C3%9Fe+2,+78052+Villingen-Schwenningen,+Deutschland';
+const WHATSAPP = `https://wa.me/49772123686?text=${encodeURIComponent('Hallo Ritter XXL! Ich möchte gerne einen Tisch reservieren.')}`;
 
 export default function KontaktPage() {
   const ref = useRef<HTMLDivElement>(null);

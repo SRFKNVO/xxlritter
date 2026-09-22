@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { Phone, Mail, MapPin, Clock, Facebook, Instagram } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ASSETS } from '../assets';
@@ -13,10 +12,9 @@ const navLinks = [
 ];
 
 const hours = [
-  { label: 'Mo – Fr', value: '11:30 – 22:00' },
-  { label: 'Sa – So', value: '11:00 – 23:00' },
-  { label: 'Feiertage', value: '11:00 – 22:00' },
-  { label: 'Küche bis', value: '21:30 Uhr' },
+  { label: 'Montag', value: 'Ruhetag' },
+  { label: 'Di – Sa', value: '17:00 – 22:00' },
+  { label: 'Sonntag', value: '11:00–14:00, 17:00–21:00' },
 ];
 
 export default function Footer() {
@@ -51,7 +49,7 @@ export default function Footer() {
               Gigantische Portionen, rustikale Atmosphäre und unvergessliche Erlebnisse.
             </p>
             <div className="flex gap-3">
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"
+              <a href="https://facebook.com/RitterRestaurant" target="_blank" rel="noopener noreferrer"
                 aria-label="Facebook"
                 className="w-10 h-10 rounded-full border border-gold/30 flex items-center justify-center text-gold/60 hover:bg-gold hover:text-obsidian hover:border-gold transition-all duration-300">
                 <Facebook size={16} />
@@ -113,10 +111,10 @@ export default function Footer() {
             </h4>
             <ul className="space-y-4">
               <li>
-                <a href="tel:+497720123456"
+                <a href="tel:+49772123686"
                   className="flex items-start gap-3 font-inter text-sm text-parchment/50 hover:text-gold transition-colors duration-300 group">
                   <Phone size={15} className="text-gold/60 mt-0.5 flex-shrink-0 group-hover:text-gold" />
-                  +49 7720 123456
+                  07721 23686
                 </a>
               </li>
               <li>
@@ -127,11 +125,11 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="https://maps.google.com/maps/dir//Herzogenweiler+2,+78048+Villingen-Schwenningen"
+                <a href="https://maps.google.com/maps/dir//Glaserstra%C3%9Fe+2,+78052+Villingen-Schwenningen"
                   target="_blank" rel="noopener noreferrer"
                   className="flex items-start gap-3 font-inter text-sm text-parchment/50 hover:text-gold transition-colors duration-300 group">
                   <MapPin size={15} className="text-gold/60 mt-0.5 flex-shrink-0 group-hover:text-gold" />
-                  <span>Herzogenweiler 2<br />78048 Villingen-Schwenningen</span>
+                  <span>Glaserstraße 2<br />78052 Villingen-Schwenningen</span>
                 </a>
               </li>
             </ul>
@@ -154,6 +152,7 @@ export default function Footer() {
             <a href="#" className="font-inter text-xs text-parchment/35 hover:text-gold transition-colors duration-300">Impressum</a>
             <a href="#" className="font-inter text-xs text-parchment/35 hover:text-gold transition-colors duration-300">Datenschutz</a>
             <a href="#" className="font-inter text-xs text-parchment/35 hover:text-gold transition-colors duration-300">AGB</a>
+            <Link to="/login" className="font-inter text-xs text-parchment/35 hover:text-gold transition-colors duration-300">Login</Link>
           </div>
         </div>
       </div>
