@@ -31,7 +31,15 @@ Ohne verbundenes Supabase-Projekt läuft die Seite trotzdem — Reservierungsfor
 
 ## Supabase einrichten (nötig für Reservierung, Login, Dashboard)
 
-1. Projekt auf [supabase.com](https://supabase.com) anlegen (kostenlos reicht für den Start; **EU-Region wählen** wegen DSGVO).
+Dieses Projekt ist bewusst als **eigenständiges** Supabase-Projekt angelegt — keine gemeinsam genutzte Instanz mit anderen Kundenprojekten. Isolation im Detail:
+
+- Zugangsdaten werden **ausschließlich** aus der lokalen `.env` dieses Repos gelesen (`src/lib/supabase.ts`) — keine globalen Umgebungsvariablen, kein Fallback-Wert, kein hartcodierter Wert, der versehentlich auf ein anderes Projekt zeigen könnte. Fehlt `.env`, zeigt die Seite einen Hinweis statt Daten, statt gegen ein falsches Projekt zu laufen.
+- `.env` ist in `.gitignore` ausgeschlossen, `.env.example` enthält nur leere Platzhalter.
+- `supabase/config.toml` hat eine eigene `project_id` (`ritter-xxl-reservierung`) und eigene, von den Supabase-Standardports verschobene lokale Ports (54821–54829 statt 54321–54329), falls `supabase start` mal lokal neben anderen Supabase-Projekten läuft.
+
+Einrichtung:
+
+1. Projekt auf [supabase.com](https://supabase.com) anlegen, **EU-Region wählen** (DSGVO) und als Projektnamen klar erkennbar z. B. **„Ritter XXL – Reservierungszentrale"** verwenden (nicht in ein bestehendes Projekt mit anderen Kundendaten mischen).
 2. Im SQL-Editor die beiden Migrationen aus `supabase/migrations/` der Reihe nach ausführen (`0001_init.sql`, dann `0002_rls_and_rpc.sql`). Legt Schema, Start-Seed (4 Tische, 3 Zimmer, Öffnungszeiten) und die Buchungs-Funktion an.
 3. Unter **Authentication → Users** einen Mitarbeiter-Account anlegen (E-Mail + Passwort) — jeder eingeloggte Nutzer ist Mitarbeiter, es gibt bewusst keine separate Rollenverwaltung für den Start.
 4. `.env` aus `.env.example` erstellen und mit **Project Settings → API** befüllen:
@@ -40,6 +48,15 @@ Ohne verbundenes Supabase-Projekt läuft die Seite trotzdem — Reservierungsfor
    VITE_SUPABASE_ANON_KEY=...
    ```
 5. Dev-Server neu starten.
+6. Projektname und Referenz-ID unten unter „Supabase-Projekt-Referenz" eintragen, damit das Projekt bei mehreren parallelen Supabase-Projekten eindeutig wiederzuerkennen ist.
+
+### Supabase-Projekt-Referenz
+
+_Noch nicht angelegt._ Nach der Einrichtung hier eintragen (Referenz-ID steht in der Project-URL: `https://<ref>.supabase.co` bzw. in **Project Settings → General**):
+
+- Projektname im Supabase-Account: `…`
+- Projekt-Referenz-ID: `…`
+- Region: `…`
 
 ## Projektstruktur
 
@@ -48,7 +65,9 @@ XXLRitter/
 ├── docs/
 │   ├── Briefing_RitterXXL.pdf          Interne Analyse + Preisstrategie (Juni 2026)
 │   └── angebot-XXLRitter_Webapp.pdf    Finales Angebot Nr. 2002 an die Kundin
-├── supabase/migrations/                Postgres-Schema, RLS, Buchungs-RPC (der Reihe nach ausführen)
+├── supabase/
+│   ├── config.toml                     Eigene project_id + eigene lokale Ports (Kollisionsschutz)
+│   └── migrations/                     Postgres-Schema, RLS, Buchungs-RPC (der Reihe nach ausführen)
 ├── src/
 │   ├── App.tsx                         Öffentliche Seiten + /login + geschütztes /dashboard/*
 │   ├── pages/                          Öffentliche Seiten + pages/dashboard/ (Mitarbeiterbereich)
