@@ -29,34 +29,80 @@ npm run lint      # ESLint
 
 Ohne verbundenes Supabase-Projekt läuft die Seite trotzdem — Reservierungsformular, Login und Dashboard zeigen dann einen Hinweis statt Daten, statt abzustürzen.
 
-## Supabase einrichten (nötig für Reservierung, Login, Dashboard)
+## Supabase — self-hosted auf eigenem VPS-Stack
 
-Dieses Projekt ist bewusst als **eigenständiges** Supabase-Projekt angelegt — keine gemeinsam genutzte Instanz mit anderen Kundenprojekten. Isolation im Detail:
+Kein Supabase-Cloud-Projekt — Backend läuft **self-hosted** auf derselben VPS wie andere kinavio-Projekte (n8n, Urologie Mannheim), aber komplett isoliert von deren Stack.
 
-- Zugangsdaten werden **ausschließlich** aus der lokalen `.env` dieses Repos gelesen (`src/lib/supabase.ts`) — keine globalen Umgebungsvariablen, kein Fallback-Wert, kein hartcodierter Wert, der versehentlich auf ein anderes Projekt zeigen könnte. Fehlt `.env`, zeigt die Seite einen Hinweis statt Daten, statt gegen ein falsches Projekt zu laufen.
-- `.env` ist in `.gitignore` ausgeschlossen, `.env.example` enthält nur leere Platzhalter.
-- `supabase/config.toml` hat eine eigene `project_id` (`ritter-xxl-reservierung`) und eigene, von den Supabase-Standardports verschobene lokale Ports (54821–54829 statt 54321–54329), falls `supabase start` mal lokal neben anderen Supabase-Projekten läuft.
+### Wo & wie erkennbar
 
-Einrichtung:
+| | |
+|---|---|
+| **VPS** | Hostinger KVM, `31.97.78.189` (`srv922224.hstgr.cloud`) |
+| **Pfad auf der VPS** | `/root/ritter-xxl-supabase/` (getrennt von `/root/supabase/` = Urologie Mannheim) |
+| **Compose-Projektname** | `ritter-xxl-supabase` |
+| **Docker-Netzwerk** | `ritter-xxl-supabase_default` (isoliert; einzige Ausnahme: der Gateway-Container hängt zusätzlich im bereits bestehenden `root_default`-Netz, ausschließlich damit Traefik ihn erreicht) |
+| **Container** | `ritter-xxl-db`, `ritter-xxl-auth`, `ritter-xxl-rest`, `ritter-xxl-meta`, `ritter-xxl-studio`, `ritter-xxl-gw` (alle mit `ritter-xxl-`-Präfix, keine Namensüberschneidung mit `supabase-*` von Urologie Mannheim) |
+| **Öffentliche API** | `https://ritter-xxl-api.kinavio.com` (nur diese eine Subdomain ist von außen erreichbar) |
+| **Basis** | offizielles `supabase/supabase`-Repo, `docker/`-Ordner, getrimmt auf `db`+`auth`+`rest`+`meta`+`studio` (Realtime/Storage/ImgProxy/Edge-Functions/Pooler entfernt — für Phase 1 ungenutzt, spart RAM auf der eng bemessenen VPS) |
 
-1. Projekt auf [supabase.com](https://supabase.com) anlegen, **EU-Region wählen** (DSGVO) und als Projektnamen klar erkennbar z. B. **„Ritter XXL – Reservierungszentrale"** verwenden (nicht in ein bestehendes Projekt mit anderen Kundendaten mischen).
-2. Im SQL-Editor die beiden Migrationen aus `supabase/migrations/` der Reihe nach ausführen (`0001_init.sql`, dann `0002_rls_and_rpc.sql`). Legt Schema, Start-Seed (4 Tische, 3 Zimmer, Öffnungszeiten) und die Buchungs-Funktion an.
-3. Unter **Authentication → Users** einen Mitarbeiter-Account anlegen (E-Mail + Passwort) — jeder eingeloggte Nutzer ist Mitarbeiter, es gibt bewusst keine separate Rollenverwaltung für den Start.
-4. `.env` aus `.env.example` erstellen und mit **Project Settings → API** befüllen:
-   ```
-   VITE_SUPABASE_URL=...
-   VITE_SUPABASE_ANON_KEY=...
-   ```
-5. Dev-Server neu starten.
-6. Projektname und Referenz-ID unten unter „Supabase-Projekt-Referenz" eintragen, damit das Projekt bei mehreren parallelen Supabase-Projekten eindeutig wiederzuerkennen ist.
+### Isolation im Detail
 
-### Supabase-Projekt-Referenz
+- **Kein gemeinsamer Container, kein gemeinsames Netzwerk, keine gemeinsame Datenbank** mit `/root/supabase/` (Urologie Mannheim) — komplett eigener Ordner, eigene Secrets, eigene Volumes.
+- **Postgres-Port ist nirgends veröffentlicht** — weder an den Host noch nach außen, genau wie beim bestehenden Stack.
+- **Kein neuer offener Firewall-Port nötig**: der Gateway-Container hat keinen `ports:`-Eintrag; er ist nur über das bereits laufende Traefik (Port 80/443, in `ufw` längst erlaubt) erreichbar. `ufw status` wurde nicht verändert.
+- Frontend-Zugangsdaten kommen ausschließlich aus der lokalen `.env` dieses Repos (siehe oben) — nichts davon ist im Code hartcodiert.
 
-_Noch nicht angelegt._ Nach der Einrichtung hier eintragen (Referenz-ID steht in der Project-URL: `https://<ref>.supabase.co` bzw. in **Project Settings → General**):
+### Betrieb
 
-- Projektname im Supabase-Account: `…`
-- Projekt-Referenz-ID: `…`
-- Region: `…`
+```bash
+ssh root@31.97.78.189
+cd /root/ritter-xxl-supabase
+docker compose ps          # Status
+docker compose up -d       # Starten
+docker compose down        # Stoppen (Daten bleiben im Volume erhalten)
+docker compose logs -f     # Logs
+```
+
+Migrationen liegen zusätzlich unter `/root/ritter-xxl-supabase/app-migrations/` auf dem Server (Kopie von `supabase/migrations/` aus diesem Repo) und wurden bereits ausgeführt. Erneut anwenden z. B. mit:
+```bash
+docker exec -i ritter-xxl-db psql -U postgres -d postgres < app-migrations/0001_init.sql
+```
+
+### Backup
+
+`/root/ritter-xxl-supabase/backup.sh` läuft täglich um 03:15 Uhr per Cronjob (`crontab -l` auf der VPS): `pg_dump` (komprimiertes custom format) aus `ritter-xxl-db`, lokal abgelegt unter `/root/ritter-xxl-supabase/backups/` (14 Tage Aufbewahrung), zusätzlich Upload zu **Cloudflare R2** via `rclone` — Upload ist vorbereitet, aber noch **nicht aktiv**, da noch kein R2-Bucket/API-Token existiert (siehe „Offene Punkte" unten). Bis dahin liegen Backups nur lokal auf der VPS.
+
+**Backup im Ernstfall zurückspielen:**
+```bash
+ssh root@31.97.78.189
+cd /root/ritter-xxl-supabase
+docker compose down                    # Stack stoppen
+docker exec -i ritter-xxl-db pg_restore -U postgres -d postgres --clean --if-exists < backups/ritter-xxl-db-<timestamp>.dump
+docker compose up -d
+```
+
+### Erreichbarkeit
+
+Das Frontend läuft **nicht** auf dieser VPS (statische Vite-Seite, siehe „Deployment" unten — GitHub Pages o. ä.), Gäste-Browser rufen Supabase also direkt über das offene Internet auf. Deshalb öffentlich per HTTPS über den bestehenden Traefik (kein neuer Reverse Proxy) unter `ritter-xxl-api.kinavio.com`.
+
+### Offene Punkte (brauchen dein Zutun)
+
+- **DNS:** A-Record `ritter-xxl-api.kinavio.com` → `31.97.78.189` in Cloudflare anlegen, **Proxy-Status „DNS only" (graue Wolke)** — sonst kann Traefik das Let's-Encrypt-Zertifikat nicht ausstellen (TLS-ALPN-Challenge braucht direkten Zugriff auf Port 443 der VPS).
+- **Cloudflare R2 für Backups:** Bucket (z. B. `ritter-xxl-backups`) + API-Token mit Object-Read/Write-Rechten anlegen, dann auf der VPS `rclone config` mit Remote-Namen `ritter-xxl-r2` einrichten (Endpoint, Access Key, Secret Key von R2). Danach läuft der nächtliche Upload automatisch mit.
+
+### Erster Mitarbeiter-Account
+
+Bereits angelegt für den Login-Test: `info@kinavio.com` (Passwort separat mitgeteilt).
+
+### Supabase Studio (Admin-UI)
+
+Bewusst **nicht** öffentlich geroutet — nur auf `127.0.0.1:18000` der VPS gebunden (nicht `0.0.0.0`, Port 8000 war durch den bestehenden Urologie-Mannheim-Stack schon belegt). Zugriff per SSH-Tunnel:
+
+```bash
+ssh -L 18000:127.0.0.1:18000 root@31.97.78.189
+```
+
+Dann im Browser `http://localhost:18000` öffnen — HTTP-Basic-Auth mit `DASHBOARD_USERNAME` / `DASHBOARD_PASSWORD` aus `/root/ritter-xxl-supabase/.env` auf der VPS. Von dort aus lassen sich weitere Mitarbeiter-Accounts anlegen (Authentication → Users → Add user, „Auto Confirm User" aktivieren, da kein SMTP eingerichtet ist).
 
 ## Projektstruktur
 
