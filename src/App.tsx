@@ -15,7 +15,9 @@ import LoginPage from './pages/LoginPage';
 import DashboardLayout from './components/dashboard/DashboardLayout';
 import UebersichtPage from './pages/dashboard/UebersichtPage';
 import TischReservierungenPage from './pages/dashboard/TischReservierungenPage';
-import ComingSoonPage from './pages/dashboard/ComingSoonPage';
+import ZimmerkalenderPage from './pages/dashboard/ZimmerkalenderPage';
+import DashboardSpeisekartePage from './pages/dashboard/SpeisekartePage';
+import KanaelePage from './pages/dashboard/KanaelePage';
 
 function PublicSite() {
   return (
@@ -54,9 +56,9 @@ export default function App() {
           >
             <Route index element={<UebersichtPage />} />
             <Route path="tische" element={<TischReservierungenPage />} />
-            <Route path="zimmerkalender" element={<ComingSoonPage title="Zimmerkalender" />} />
-            <Route path="speisekarte" element={<ComingSoonPage title="Speisekarte & Aktionen" />} />
-            <Route path="kanaele" element={<ComingSoonPage title="Kanäle" />} />
+            <Route path="zimmerkalender" element={<ZimmerkalenderPage />} />
+            <Route path="speisekarte" element={<DashboardSpeisekartePage />} />
+            <Route path="kanaele" element={<KanaelePage />} />
           </Route>
           <Route path="/*" element={<PublicSite />} />
         </Routes>

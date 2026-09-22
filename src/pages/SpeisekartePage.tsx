@@ -1,5 +1,6 @@
 import PageHero from '../components/PageHero';
 import Speisekarte from '../components/Speisekarte';
+import SpeisekartenListe from '../components/SpeisekartenListe';
 
 export default function SpeisekartePage() {
   return (
@@ -10,6 +11,7 @@ export default function SpeisekartePage() {
         description="Gigantische Portionen, regionale Spezialitäten und legendäre Ritterplatten – für echte Helden am Tisch."
       />
       <Speisekarte />
+      <SpeisekartenListe />
     </div>
   );
 }

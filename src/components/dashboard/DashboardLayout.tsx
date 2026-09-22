@@ -5,9 +5,9 @@ import { useAuth } from '../../context/AuthContext';
 const navItems = [
   { to: '/dashboard', label: 'Übersicht', icon: LayoutGrid, end: true },
   { to: '/dashboard/tische', label: 'Tisch Reservierungen', icon: UtensilsCrossed, end: false },
-  { to: '/dashboard/zimmerkalender', label: 'Zimmerkalender', icon: CalendarRange, end: false, comingSoon: true },
-  { to: '/dashboard/speisekarte', label: 'Speisekarte & Aktionen', icon: ChefHat, end: false, comingSoon: true },
-  { to: '/dashboard/kanaele', label: 'Kanäle', icon: Radio, end: false, comingSoon: true },
+  { to: '/dashboard/zimmerkalender', label: 'Zimmerkalender', icon: CalendarRange, end: false },
+  { to: '/dashboard/speisekarte', label: 'Speisekarte & Aktionen', icon: ChefHat, end: false },
+  { to: '/dashboard/kanaele', label: 'Kanäle', icon: Radio, end: false },
 ];
 
 export default function DashboardLayout() {
@@ -29,22 +29,14 @@ export default function DashboardLayout() {
               key={item.to}
               to={item.to}
               end={item.end}
-              onClick={(e) => item.comingSoon && e.preventDefault()}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-sm text-sm font-inter transition-colors ${
-                  item.comingSoon
-                    ? 'text-parchment/30 cursor-default'
-                    : isActive
-                    ? 'bg-gold/15 text-gold'
-                    : 'text-parchment/70 hover:bg-obsidian-light hover:text-parchment'
+                  isActive ? 'bg-gold/15 text-gold' : 'text-parchment/70 hover:bg-obsidian-light hover:text-parchment'
                 }`
               }
             >
               <item.icon size={17} />
               <span className="flex-1">{item.label}</span>
-              {item.comingSoon && (
-                <span className="text-[9px] uppercase tracking-wide text-parchment/25">bald</span>
-              )}
             </NavLink>
           ))}
         </nav>

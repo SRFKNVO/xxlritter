@@ -1,5 +1,7 @@
 import Hero from '../components/Hero';
 import Bewertungen from '../components/Bewertungen';
+import AktionenKarussell from '../components/AktionenKarussell';
+import FacebookVorschau from '../components/FacebookVorschau';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Utensils, BedDouble, PartyPopper, Images, Phone, ChevronRight } from 'lucide-react';
@@ -124,6 +126,8 @@ export default function HomePage() {
         </div>
       </section>
 
+      <AktionenKarussell />
+
       {/* Interior atmosphere photo section */}
       <section className="relative overflow-hidden" style={{ height: '70vh', minHeight: '420px' }}>
         <motion.div
@@ -186,6 +190,10 @@ export default function HomePage() {
 
       {/* Bewertungen on homepage */}
       <Bewertungen />
+
+      <div className="pb-20 px-6">
+        <FacebookVorschau />
+      </div>
     </div>
   );
 }

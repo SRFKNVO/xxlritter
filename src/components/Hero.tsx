@@ -150,7 +150,7 @@ export default function Hero() {
             style={{ fontFamily: 'Cinzel, serif' }}
           >
             <BedDouble size={18} />
-            <span>Hotel Buchen</span>
+            <span>Verfügbarkeit prüfen</span>
           </Link>
         </motion.div>
 
