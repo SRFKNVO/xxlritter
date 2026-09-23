@@ -92,7 +92,7 @@ Das Frontend läuft **nicht** auf dieser VPS (statische Vite-Seite, siehe „Dep
 
 ### Offene Punkte (brauchen dein Zutun)
 
-- **DNS:** A-Record `ritter-xxl-api.kinavio.com` → `31.97.78.189` in Cloudflare anlegen, **Proxy-Status „DNS only" (graue Wolke)** — sonst kann Traefik das Let's-Encrypt-Zertifikat nicht ausstellen (TLS-ALPN-Challenge braucht direkten Zugriff auf Port 443 der VPS).
+- ~~DNS für `ritter-xxl-api.kinavio.com`~~ — erledigt (2026-09-23). **Hinweis für später:** Traefik versucht ein einmal fehlgeschlagenes ACME-Zertifikat nicht von selbst erneut (kein automatischer Retry beobachtet) — falls eine Domain mal ohne fertiges DNS an Traefik gehängt wird, hilft nach dem Setzen des DNS-Eintrags ein `docker compose restart traefik` (kurze Unterbrechung für alle Traefik-Routen auf dieser VPS, vorher prüfen ob gerade n8n-Executions laufen).
 - ~~Cloudflare R2 für Backups~~ — erledigt (2026-09-23), Upload + 30-Tage-Rotation laufen automatisch mit dem täglichen Cronjob.
 
 ### Erster Mitarbeiter-Account
@@ -205,7 +205,6 @@ XXLRitter/
 **Noch offen:**
 - [ ] **Booking.com-iCal-URLs pro Zimmer** eintragen (Dashboard → Kanäle) — Sync läuft erst, wenn eine URL hinterlegt ist
 - [ ] **Facebook-Token einrichten** (`secrets/facebook.env` auf der VPS, siehe „Kanäle" oben) — Empfehlung zum langlebigen Token dort dokumentiert
-- [ ] **DNS** für `ritter-xxl-api.kinavio.com` (siehe oben)
 - [ ] E-Mail-Bestätigung an Gäste nach Reservierung/Buchung
 - [ ] SMS/WhatsApp-Benachrichtigung (niedrige Priorität, Architektur ist dafür vorbereitet)
 - [ ] Echte Zimmernamen/-beschreibungen vom Kunden (aktuell nur die 3 Kategorien von xxlritter.de)
