@@ -72,7 +72,9 @@ docker exec -i ritter-xxl-db psql -U postgres -d postgres < app-migrations/0001_
 
 ### Backup
 
-`/root/ritter-xxl-supabase/backup.sh` läuft täglich um 03:15 Uhr per Cronjob (`crontab -l` auf der VPS): `pg_dump` (komprimiertes custom format) aus `ritter-xxl-db` **und** ein `tar.gz` des Storage-Volumes (hochgeladene Zimmer-/Aktionsbilder — die stehen nicht in der DB, ein reines DB-Backup würde sie sonst nicht mitsichern), beides lokal abgelegt unter `/root/ritter-xxl-supabase/backups/` (14 Tage Aufbewahrung), zusätzlich Upload zu **Cloudflare R2** via `rclone` — Upload ist vorbereitet, aber noch **nicht aktiv**, da noch kein R2-Bucket/API-Token existiert (siehe „Offene Punkte" unten). Bis dahin liegen Backups nur lokal auf der VPS.
+`/root/ritter-xxl-supabase/backup.sh` läuft täglich um 03:15 Uhr per Cronjob (`crontab -l` auf der VPS): `pg_dump` (komprimiertes custom format) aus `ritter-xxl-db` **und** ein `tar.gz` des Storage-Volumes (hochgeladene Zimmer-/Aktionsbilder — die stehen nicht in der DB, ein reines DB-Backup würde sie sonst nicht mitsichern), beides lokal abgelegt unter `/root/ritter-xxl-supabase/backups/` (14 Tage Aufbewahrung), zusätzlich Upload zu **Cloudflare R2** via `rclone` (Remote `ritter-xxl-r2`, Bucket `ritter-xxl-backups`) — **aktiv seit 2026-09-23**, dort 30 Tage Aufbewahrung (`rclone delete --min-age 30d`).
+
+**Stolperfalle beim Einrichten (falls je neu aufgesetzt werden muss):** Die per `apt` installierte `rclone`-Version auf Ubuntu 24.04 war stark veraltet (v1.60.1) und lieferte bei R2-Uploads ein nichtssagendes `AccessDenied`, obwohl das Token korrekte Rechte hatte — Lesen ging, Schreiben nicht. Fix: `rclone` über den offiziellen Installer aktualisieren (`curl https://rclone.org/install.sh | sudo bash`). Danach zeigte die neuere Version den echten Grund: rclone versucht standardmäßig vor jedem Upload per `CreateBucket`-Call zu prüfen, ob der Bucket existiert — das darf ein bucket-beschränktes R2-Token aber nicht (korrekt so, es soll ja nur in den Bucket schreiben, keine Buckets verwalten). Lösung: in der Remote-Konfiguration `no_check_bucket = true` setzen.
 
 **Backup im Ernstfall zurückspielen:**
 ```bash
@@ -91,7 +93,7 @@ Das Frontend läuft **nicht** auf dieser VPS (statische Vite-Seite, siehe „Dep
 ### Offene Punkte (brauchen dein Zutun)
 
 - **DNS:** A-Record `ritter-xxl-api.kinavio.com` → `31.97.78.189` in Cloudflare anlegen, **Proxy-Status „DNS only" (graue Wolke)** — sonst kann Traefik das Let's-Encrypt-Zertifikat nicht ausstellen (TLS-ALPN-Challenge braucht direkten Zugriff auf Port 443 der VPS).
-- **Cloudflare R2 für Backups:** Bucket (z. B. `ritter-xxl-backups`) + API-Token mit Object-Read/Write-Rechten anlegen, dann auf der VPS `rclone config` mit Remote-Namen `ritter-xxl-r2` einrichten (Endpoint, Access Key, Secret Key von R2). Danach läuft der nächtliche Upload automatisch mit.
+- ~~Cloudflare R2 für Backups~~ — erledigt (2026-09-23), Upload + 30-Tage-Rotation laufen automatisch mit dem täglichen Cronjob.
 
 ### Erster Mitarbeiter-Account
 
@@ -203,7 +205,6 @@ XXLRitter/
 **Noch offen:**
 - [ ] **Booking.com-iCal-URLs pro Zimmer** eintragen (Dashboard → Kanäle) — Sync läuft erst, wenn eine URL hinterlegt ist
 - [ ] **Facebook-Token einrichten** (`secrets/facebook.env` auf der VPS, siehe „Kanäle" oben) — Empfehlung zum langlebigen Token dort dokumentiert
-- [ ] **Cloudflare R2 für Backups** (Bucket + Token, dann `rclone config` auf der VPS)
 - [ ] **DNS** für `ritter-xxl-api.kinavio.com` (siehe oben)
 - [ ] E-Mail-Bestätigung an Gäste nach Reservierung/Buchung
 - [ ] SMS/WhatsApp-Benachrichtigung (niedrige Priorität, Architektur ist dafür vorbereitet)
