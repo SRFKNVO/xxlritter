@@ -1,10 +1,10 @@
 #!/bin/sh
 # Tägliches Backup für den isolierten Ritter-XXL-Supabase-Stack.
 # pg_dump (custom format, komprimiert) + Storage-Volume (hochgeladene
-# Zimmer-/Aktionsbilder) -> lokal behalten (14 Tage) -> optional Upload zu
-# Cloudflare R2 via rclone (Remote "ritter-xxl-r2"), sobald `rclone config`
-# dafür eingerichtet ist. Ohne konfiguriertes Remote läuft das Backup
-# trotzdem durch, nur der Upload wird übersprungen.
+# Zimmer-/Aktionsbilder) -> lokal behalten (14 Tage) -> Upload zu Cloudflare
+# R2 via rclone (Remote "ritter-xxl-r2", Rotation dort 30 Tage). Ohne
+# konfiguriertes Remote läuft das Backup trotzdem durch, nur der Upload
+# wird übersprungen.
 
 set -eu
 
@@ -15,6 +15,7 @@ CONTAINER="ritter-xxl-db"
 RCLONE_REMOTE="ritter-xxl-r2"
 RCLONE_BUCKET="ritter-xxl-backups"
 KEEP_DAYS=14
+R2_KEEP_DAYS=30
 
 mkdir -p "$BACKUP_DIR"
 
@@ -54,6 +55,11 @@ if rclone listremotes 2>/dev/null | grep -q "^${RCLONE_REMOTE}:"; then
         else
             log "WARNUNG: Upload Storage nach ${RCLONE_REMOTE}:${RCLONE_BUCKET} fehlgeschlagen"
         fi
+    fi
+    if rclone delete "${RCLONE_REMOTE}:${RCLONE_BUCKET}" --min-age "${R2_KEEP_DAYS}d" 2>>"$LOG_FILE"; then
+        log "R2: alte Backups (>${R2_KEEP_DAYS} Tage) im Bucket aufgeräumt"
+    else
+        log "WARNUNG: Aufräumen alter R2-Backups fehlgeschlagen"
     fi
 else
     log "WARNUNG: rclone-Remote '${RCLONE_REMOTE}' noch nicht konfiguriert (rclone config) — Backup bleibt nur lokal liegen"

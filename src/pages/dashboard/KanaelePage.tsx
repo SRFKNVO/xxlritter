@@ -75,7 +75,14 @@ export default function KanaelePage() {
               return (
                 <div key={room.id} className="p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="font-inter text-sm font-medium text-forest">{room.name}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-inter text-sm font-medium text-forest">{room.name}</p>
+                      {!s?.booking_com_ical_url && (
+                        <span className="text-[10px] font-inter uppercase tracking-wide px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                          Noch nicht verbunden
+                        </span>
+                      )}
+                    </div>
                     <button
                       onClick={() => handleSync(room.id)}
                       disabled={!s?.booking_com_ical_url}
@@ -91,31 +98,40 @@ export default function KanaelePage() {
                     placeholder="Booking.com Export-iCal-URL einfügen"
                     className="w-full border border-gray-200 rounded-sm px-3 py-2 text-xs font-inter text-forest mb-2"
                   />
-                  <div className="flex items-center gap-4 text-xs font-inter text-forest-muted">
-                    <span>
-                      Letzter Sync:{' '}
-                      {s?.last_synced_at ? new Date(s.last_synced_at).toLocaleString('de-DE') : 'noch nie'}
-                    </span>
-                    {s?.last_sync_status && (
-                      <span className={s.last_sync_status === 'ok' ? 'text-emerald-700' : 'text-red-600'}>
-                        {s.last_sync_status === 'ok'
-                          ? `${s.last_imported_count ?? 0} Buchungen importiert`
-                          : `Fehler: ${s.last_sync_error}`}
+                  {s?.booking_com_ical_url && (
+                    <div className="flex items-center gap-4 text-xs font-inter text-forest-muted">
+                      <span>
+                        Letzter Sync:{' '}
+                        {s?.last_synced_at ? new Date(s.last_synced_at).toLocaleString('de-DE') : 'noch nie'}
                       </span>
-                    )}
-                    {s?.sync_requested_at &&
-                      (!s.last_synced_at || s.sync_requested_at > s.last_synced_at) && (
-                        <span className="text-amber-700">Sync angefordert, läuft in Kürze...</span>
+                      {s?.last_sync_status && (
+                        <span className={s.last_sync_status === 'ok' ? 'text-emerald-700' : 'text-red-600'}>
+                          {s.last_sync_status === 'ok'
+                            ? `${s.last_imported_count ?? 0} Buchungen importiert`
+                            : `Fehler: ${s.last_sync_error}`}
+                        </span>
                       )}
-                  </div>
+                      {s?.sync_requested_at &&
+                        (!s.last_synced_at || s.sync_requested_at > s.last_synced_at) && (
+                          <span className="text-amber-700">Sync angefordert, läuft in Kürze...</span>
+                        )}
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
 
-          <h2 className="font-cinzel text-xs tracking-widest uppercase text-forest-muted mb-2" style={{ fontFamily: 'Cinzel, serif' }}>
-            Facebook-Vorschau
-          </h2>
+          <div className="flex items-center gap-2 mb-2">
+            <h2 className="font-cinzel text-xs tracking-widest uppercase text-forest-muted" style={{ fontFamily: 'Cinzel, serif' }}>
+              Facebook-Vorschau
+            </h2>
+            {!facebook?.post_id && (
+              <span className="text-[10px] font-inter uppercase tracking-wide px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                Einrichtung ausstehend
+              </span>
+            )}
+          </div>
           <div className="bg-white border border-gray-200 rounded-sm p-4">
             {facebook?.post_id ? (
               <div className="flex gap-4">
@@ -131,7 +147,8 @@ export default function KanaelePage() {
               </div>
             ) : (
               <p className="font-inter text-xs text-forest-muted">
-                Noch kein Facebook-Post abgerufen — Page-Access-Token auf der VPS einrichten (siehe README).
+                Facebook ist noch nicht verbunden — die Vorschau erscheint hier automatisch, sobald die
+                Anbindung eingerichtet ist.
               </p>
             )}
           </div>
