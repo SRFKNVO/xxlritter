@@ -107,8 +107,8 @@ export default function TischReservierungenPage() {
   };
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 md:p-8">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
           <h1 className="font-cinzel font-bold text-2xl text-forest" style={{ fontFamily: 'Cinzel, serif' }}>
             Tisch Reservierungen
@@ -164,56 +164,95 @@ export default function TischReservierungenPage() {
           ) : filtered.length === 0 ? (
             <p className="font-inter text-sm text-forest-muted">Keine Reservierungen in diesem Zeitraum.</p>
           ) : (
-            <div className="bg-white rounded-sm border border-gray-200 overflow-hidden">
-              <table className="w-full text-sm font-inter">
-                <thead>
-                  <tr className="border-b border-gray-200 text-left text-forest-muted text-xs uppercase tracking-wide">
-                    <th className="px-4 py-3">Datum</th>
-                    <th className="px-4 py-3">Uhrzeit</th>
-                    <th className="px-4 py-3">Tisch</th>
-                    <th className="px-4 py-3">Personen</th>
-                    <th className="px-4 py-3">Gast</th>
-                    <th className="px-4 py-3">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((r) => (
-                    <tr key={r.id} className="border-b border-gray-100 last:border-0">
-                      <td className="px-4 py-3 text-forest">{r.reservation_date}</td>
-                      <td className="px-4 py-3 text-forest">
-                        {r.start_time.slice(0, 5)} – {r.end_time.slice(0, 5)}
-                      </td>
-                      <td className="px-4 py-3 text-forest">
-                        {tableById.get(r.table_id)?.name || '—'}
-                        {overlapWarningIds.has(r.id) && (
-                          <span title="Zeitliche Überschneidung an diesem Tisch prüfen" className="inline-flex ml-2 align-middle">
-                            <AlertTriangle size={14} className="text-amber-600" />
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-forest">{r.party_size}</td>
-                      <td className="px-4 py-3 text-forest">
-                        <div>{r.guest_name}</div>
-                        <div className="text-xs text-forest-muted">{r.guest_phone}</div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <select
-                          value={r.status}
-                          onChange={(e) => handleStatusChange(r.id, e.target.value as ReservationStatus)}
-                          className={`text-xs font-inter rounded-full px-2.5 py-1 border-0 outline-none cursor-pointer ${STATUS_STYLES[r.status]}`}
-                        >
-                          {STATUS_OPTIONS.map((s) => (
-                            <option key={s} value={s}>
-                              {s}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
+            <>
+              {/* Mobile: Kartenliste statt Tabelle */}
+              <div className="md:hidden space-y-3">
+                {filtered.map((r) => (
+                  <div key={r.id} className="bg-white rounded-sm border border-gray-200 p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <p className="font-inter text-sm font-semibold text-forest">
+                          {r.reservation_date} · {r.start_time.slice(0, 5)}–{r.end_time.slice(0, 5)}
+                        </p>
+                        <p className="font-inter text-xs text-forest-muted mt-0.5">
+                          {tableById.get(r.table_id)?.name || '—'} · {r.party_size} Personen
+                          {overlapWarningIds.has(r.id) && (
+                            <span title="Zeitliche Überschneidung an diesem Tisch prüfen" className="inline-flex ml-1.5 align-middle">
+                              <AlertTriangle size={13} className="text-amber-600" />
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                      <select
+                        value={r.status}
+                        onChange={(e) => handleStatusChange(r.id, e.target.value as ReservationStatus)}
+                        className={`text-xs font-inter rounded-full px-2.5 py-1 border-0 outline-none cursor-pointer flex-shrink-0 ${STATUS_STYLES[r.status]}`}
+                      >
+                        {STATUS_OPTIONS.map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <p className="font-inter text-sm text-forest">{r.guest_name}</p>
+                    <p className="font-inter text-xs text-forest-muted">{r.guest_phone}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop: Tabelle */}
+              <div className="hidden md:block bg-white rounded-sm border border-gray-200 overflow-hidden">
+                <table className="w-full text-sm font-inter">
+                  <thead>
+                    <tr className="border-b border-gray-200 text-left text-forest-muted text-xs uppercase tracking-wide">
+                      <th className="px-4 py-3">Datum</th>
+                      <th className="px-4 py-3">Uhrzeit</th>
+                      <th className="px-4 py-3">Tisch</th>
+                      <th className="px-4 py-3">Personen</th>
+                      <th className="px-4 py-3">Gast</th>
+                      <th className="px-4 py-3">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {filtered.map((r) => (
+                      <tr key={r.id} className="border-b border-gray-100 last:border-0">
+                        <td className="px-4 py-3 text-forest">{r.reservation_date}</td>
+                        <td className="px-4 py-3 text-forest">
+                          {r.start_time.slice(0, 5)} – {r.end_time.slice(0, 5)}
+                        </td>
+                        <td className="px-4 py-3 text-forest">
+                          {tableById.get(r.table_id)?.name || '—'}
+                          {overlapWarningIds.has(r.id) && (
+                            <span title="Zeitliche Überschneidung an diesem Tisch prüfen" className="inline-flex ml-2 align-middle">
+                              <AlertTriangle size={14} className="text-amber-600" />
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-forest">{r.party_size}</td>
+                        <td className="px-4 py-3 text-forest">
+                          <div>{r.guest_name}</div>
+                          <div className="text-xs text-forest-muted">{r.guest_phone}</div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <select
+                            value={r.status}
+                            onChange={(e) => handleStatusChange(r.id, e.target.value as ReservationStatus)}
+                            className={`text-xs font-inter rounded-full px-2.5 py-1 border-0 outline-none cursor-pointer ${STATUS_STYLES[r.status]}`}
+                          >
+                            {STATUS_OPTIONS.map((s) => (
+                              <option key={s} value={s}>
+                                {s}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </>
       ) : (
@@ -261,11 +300,11 @@ function TischeVerwalten({ tables, onChanged }: { tables: RestaurantTable[]; onC
     <div>
       <div className="bg-white rounded-sm border border-gray-200 divide-y divide-gray-100 mb-6">
         {tables.map((t) => (
-          <div key={t.id} className="flex items-center gap-4 px-4 py-3">
+          <div key={t.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
             <input
               defaultValue={t.name}
               onBlur={(e) => e.target.value !== t.name && handleNameChange(t, e.target.value)}
-              className="font-inter text-sm text-forest bg-transparent border-b border-transparent hover:border-gray-300 focus:border-forest outline-none px-1 py-0.5 flex-1"
+              className="font-inter text-sm text-forest bg-transparent border-b border-transparent hover:border-gray-300 focus:border-forest outline-none px-1 py-0.5 flex-1 min-w-[120px]"
             />
             <label className="flex items-center gap-2 text-xs font-inter text-forest-muted">
               Kapazität
@@ -292,8 +331,8 @@ function TischeVerwalten({ tables, onChanged }: { tables: RestaurantTable[]; onC
         ))}
       </div>
 
-      <form onSubmit={handleAdd} className="bg-white rounded-sm border border-gray-200 p-4 flex items-end gap-3">
-        <div className="flex-1">
+      <form onSubmit={handleAdd} className="bg-white rounded-sm border border-gray-200 p-4 flex flex-wrap items-end gap-3">
+        <div className="flex-1 min-w-[140px]">
           <label className="block text-xs font-inter text-forest-muted mb-1">Neuer Tisch – Name</label>
           <input
             value={name}

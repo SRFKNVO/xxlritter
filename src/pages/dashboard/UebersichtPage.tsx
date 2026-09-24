@@ -24,7 +24,7 @@ export default function UebersichtPage() {
   }, []);
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <h1 className="font-cinzel font-bold text-2xl text-forest mb-1" style={{ fontFamily: 'Cinzel, serif' }}>
         Übersicht
       </h1>

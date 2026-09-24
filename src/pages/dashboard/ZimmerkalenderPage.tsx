@@ -116,8 +116,8 @@ export default function ZimmerkalenderPage() {
   };
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 md:p-8">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
           <h1 className="font-cinzel font-bold text-2xl text-forest" style={{ fontFamily: 'Cinzel, serif' }}>
             Zimmerkalender
@@ -378,7 +378,7 @@ function ZimmerVerwalten({ rooms, onChanged }: { rooms: Room[]; onChanged: () =>
     <div>
       <div className="bg-white rounded-sm border border-gray-200 divide-y divide-gray-100 mb-6">
         {rooms.map((room) => (
-          <div key={room.id} className="flex items-center gap-4 px-4 py-3">
+          <div key={room.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
             <label className="relative w-14 h-14 rounded-sm bg-gray-100 flex items-center justify-center overflow-hidden cursor-pointer flex-shrink-0">
               {room.image_url ? (
                 <img src={publicImageUrl(room.image_url)} alt="" className="w-full h-full object-cover" />
@@ -409,7 +409,7 @@ function ZimmerVerwalten({ rooms, onChanged }: { rooms: Room[]; onChanged: () =>
               defaultValue={room.description || ''}
               onBlur={(e) => handleFieldBlur(room, 'description', e.target.value)}
               placeholder="Beschreibung"
-              className="font-inter text-xs text-forest-muted bg-transparent border-b border-transparent hover:border-gray-300 focus:border-forest outline-none px-1 py-0.5 flex-1"
+              className="font-inter text-xs text-forest-muted bg-transparent border-b border-transparent hover:border-gray-300 focus:border-forest outline-none px-1 py-0.5 flex-1 min-w-[120px]"
             />
             <label className="flex items-center gap-2 text-xs font-inter text-forest-muted">
               €/Nacht

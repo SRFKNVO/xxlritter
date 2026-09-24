@@ -41,8 +41,8 @@ export default function SpeisekartePage() {
   useEffect(load, []);
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 md:p-8">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <h1 className="font-cinzel font-bold text-2xl text-forest" style={{ fontFamily: 'Cinzel, serif' }}>
           Speisekarte & Aktionen
         </h1>
@@ -147,7 +147,7 @@ function SpeisekarteTab({ items, onChanged }: { items: MenuItem[]; onChanged: ()
           </h3>
           <div className="bg-white rounded-sm border border-gray-200 divide-y divide-gray-100">
             {catItems.map((item) => (
-              <div key={item.id} className="flex items-center gap-4 px-4 py-3">
+              <div key={item.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
                 <input
                   defaultValue={item.name}
                   onBlur={(e) => handleFieldBlur(item, 'name', e.target.value)}
@@ -157,7 +157,7 @@ function SpeisekarteTab({ items, onChanged }: { items: MenuItem[]; onChanged: ()
                   defaultValue={item.description || ''}
                   placeholder="Beschreibung"
                   onBlur={(e) => handleFieldBlur(item, 'description', e.target.value)}
-                  className="font-inter text-xs text-forest-muted bg-transparent border-b border-transparent hover:border-gray-300 focus:border-forest outline-none px-1 py-0.5 flex-1"
+                  className="font-inter text-xs text-forest-muted bg-transparent border-b border-transparent hover:border-gray-300 focus:border-forest outline-none px-1 py-0.5 flex-1 min-w-[120px]"
                 />
                 <label className="flex items-center gap-1 text-xs font-inter text-forest-muted">
                   €
@@ -352,9 +352,9 @@ function AktionenTab({ promotions, onChanged }: { promotions: Promotion[]; onCha
           </h3>
           <div className="bg-white rounded-sm border border-gray-200 divide-y divide-gray-100 mb-8">
             {drafts.map((p) => (
-              <div key={p.id} className="flex items-center gap-4 px-4 py-3">
+              <div key={p.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
                 {p.image_path && <img src={publicImageUrl(p.image_path)} alt="" className="w-12 h-12 rounded-sm object-cover" />}
-                <div className="flex-1">
+                <div className="flex-1 min-w-[140px]">
                   <p className="font-inter text-sm text-forest">{p.title}</p>
                   {p.description && <p className="font-inter text-xs text-forest-muted">{p.description}</p>}
                 </div>
