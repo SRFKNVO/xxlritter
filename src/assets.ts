@@ -1,12 +1,15 @@
 import logoImg from './assets/Ritter_XXL_Logo_grau copy.png';
 import restaurantImg from './assets/XXL-Ritter_Herzogenweiler_Restaurant.jpg';
+import restaurantInteriorImg from './assets/XXL-Ritter_Herzogenweiler_Restaurant copy.jpg';
+import restaurant2Img from './assets/XXL-Ritter_Herzogenweiler_restaurant2.jpg';
 import hotelImg from './assets/XXL-Ritter_Herzogenweiler_hoel.jpg';
+import aussenImg from './assets/Außen.jpg';
 
 export const ASSETS = {
   logo: logoImg,
   restaurant: restaurantImg,
-  restaurantInterior: '/assets/XXL-Ritter_Herzogenweiler_Restaurant copy.jpg',
-  restaurant2: '/assets/XXL-Ritter_Herzogenweiler_restaurant2.jpg',
+  restaurantInterior: restaurantInteriorImg,
+  restaurant2: restaurant2Img,
   hotel: hotelImg,
-  aussen: '/assets/Außen.jpg',
+  aussen: aussenImg,
 } as const;
